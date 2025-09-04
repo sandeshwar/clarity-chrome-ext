@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Clarity</title>
+  <style>
+    body {
+      width: 220px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      text-align: center;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 12px;
+    }
+    h1 {
+      font-size: 18px;
+      color: #1c1e21;
+      margin: 0 0 4px;
+    }
+    p {
+      font-size: 13px;
+      color: #606770;
+      margin: 0 0 16px;
+    }
+    .button-grid {
+        display: grid;
+        gap: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      background-color: #fff;
+      color: #1c1e21;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    button:hover {
+      background-color: #e4e6e9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clarity</h1>
+  <p>Tab management, simplified.</p>
+  <div class="button-grid">
+    <button id="toggle-grid">Show Tab Grid</button>
+    <button id="open-smart-switcher">Smart Switcher</button>
+    <button id="toggle-actions">Quick Actions</button>
+    <button id="open-ai-assistant">AI Assistant</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
