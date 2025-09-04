@@ -16,51 +16,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Tab Rendering ---
 
-    async function renderTabs(tabs) {
+    function renderTabs(tabs) {
         gridContainer.innerHTML = '';
-        const storageKeys = tabs.map(tab => `thumbnail_${tab.id}`);
-        const thumbnails = await chrome.storage.local.get(storageKeys);
-
         tabs.forEach(tab => {
-            const tabCard = document.createElement('div');
-            tabCard.className = 'tab-card';
-            tabCard.dataset.tabId = tab.id;
-
-            const title = document.createElement('span');
-            title.className = 'title';
-            title.textContent = tab.title;
-
-            const favicon = document.createElement('img');
-            favicon.className = 'favicon';
-            favicon.src = tab.favIconUrl || 'icons/icon16.png';
-
-            const titleContainer = document.createElement('div');
-            titleContainer.style.display = 'flex';
-            titleContainer.style.alignItems = 'center';
-            titleContainer.appendChild(favicon);
-            titleContainer.appendChild(title);
-
-            const thumbnail = document.createElement('div');
-            thumbnail.className = 'thumbnail';
-            
-            const thumbnailUrl = thumbnails[`thumbnail_${tab.id}`];
-            if (thumbnailUrl) {
-                thumbnail.style.backgroundImage = `url(${thumbnailUrl})`;
-            } else {
-                thumbnail.style.backgroundColor = '#333'; // Placeholder color
-            }
-
-            tabCard.appendChild(titleContainer);
-            tabCard.appendChild(thumbnail);
-
-            tabCard.addEventListener('click', async () => {
-                await chrome.tabs.update(tab.id, { active: true });
-                await chrome.windows.update(tab.windowId, { focused: true });
-                window.parent.postMessage({ type: 'clarity:close-grid' }, '*');
-            });
-
+            const tabCard = createTabCard(tab);
             gridContainer.appendChild(tabCard);
+            loadThumbnail(tab.id, tab.favIconUrl);
         });
+    }
+
+    function createTabCard(tab) {
+        const tabCard = document.createElement('div');
+        tabCard.className = 'tab-card';
+        tabCard.dataset.tabId = tab.id;
+
+        const title = document.createElement('span');
+        title.className = 'title';
+        title.textContent = tab.title;
+
+        const favicon = document.createElement('img');
+        favicon.className = 'favicon';
+        favicon.src = tab.favIconUrl || 'icons/icon16.png';
+
+        const titleContainer = document.createElement('div');
+        titleContainer.style.display = 'flex';
+        titleContainer.style.alignItems = 'center';
+        titleContainer.appendChild(favicon);
+        titleContainer.appendChild(title);
+
+        const thumbnail = document.createElement('div');
+        thumbnail.className = 'thumbnail';
+        thumbnail.id = `thumbnail_${tab.id}`;
+
+        tabCard.appendChild(titleContainer);
+        tabCard.appendChild(thumbnail);
+
+        tabCard.addEventListener('click', async () => {
+            await chrome.tabs.update(tab.id, { active: true });
+            await chrome.windows.update(tab.windowId, { focused: true });
+            window.parent.postMessage({ type: 'clarity:close-grid' }, '*');
+        });
+
+        return tabCard;
+    }
+
+    async function loadThumbnail(tabId, favIconUrl) {
+        const key = `thumbnail_${tabId}`;
+        const data = await chrome.storage.local.get(key);
+        const thumbnailElement = document.getElementById(key);
+
+        if (thumbnailElement && data[key]) {
+            thumbnailElement.style.backgroundImage = `url(${data[key]})`;
+            thumbnailElement.style.backgroundColor = 'transparent';
+        } else if (thumbnailElement) {
+            // Fallback to favicon gradient
+            getDominantColor(favIconUrl, (color) => {
+                if (color) {
+                    const [r, g, b] = color;
+                    thumbnailElement.style.background = `linear-gradient(135deg, rgba(${r},${g},${b},0.3) 0%, rgba(${r},${g},${b},0.1) 100%)`;
+                }
+            });
+        }
+    }
+
+    function getDominantColor(imageUrl, callback) {
+        if (!imageUrl || imageUrl.startsWith('chrome://')) {
+            callback(null);
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = imageUrl;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            try {
+                const data = ctx.getImageData(0, 0, img.width, img.height).data;
+                let r = 0, g = 0, b = 0;
+                let count = 0;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    // Ignore transparent pixels
+                    if (data[i + 3] > 0) {
+                        r += data[i];
+                        g += data[i + 1];
+                        b += data[i + 2];
+                        count++;
+                    }
+                }
+
+                if (count > 0) {
+                    r = Math.floor(r / count);
+                    g = Math.floor(g / count);
+                    b = Math.floor(b / count);
+                    callback([r, g, b]);
+                } else {
+                    callback(null);
+                }
+            } catch (e) {
+                console.warn("Could not get dominant color from favicon:", e);
+                callback(null);
+            }
+        };
+        img.onerror = () => {
+            callback(null);
+        };
     }
 
     async function loadAndRenderTabs() {
@@ -139,6 +204,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             window.parent.postMessage({ type: 'clarity:close-grid' }, '*');
+        }
+    });
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local') {
+            for (const key in changes) {
+                if (key.startsWith('thumbnail_')) {
+                    const tabId = parseInt(key.split('_')[1]);
+                    const thumbnailElement = document.getElementById(key);
+                    if (thumbnailElement && changes[key].newValue) {
+                        thumbnailElement.style.backgroundImage = `url(${changes[key].newValue})`;
+                        thumbnailElement.style.backgroundColor = 'transparent';
+                    } else if (thumbnailElement) {
+                        thumbnailElement.style.backgroundImage = '';
+                        thumbnailElement.style.backgroundColor = '#3a3a3a';
+                    }
+                }
+            }
         }
     });
 

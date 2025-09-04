@@ -133,10 +133,10 @@ body {
 }
 
 .tab-card .thumbnail {
-  flex-grow: 1;
+  aspect-ratio: 16 / 9;
   background-size: cover;
   background-position: center;
   margin-top: 10px;
   border-radius: 4px;
-  min-height: 150px;
+  background-color: #3a3a3a; /* Placeholder for empty thumbnails */
 }
