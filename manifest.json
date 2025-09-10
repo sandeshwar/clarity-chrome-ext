@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Clarity",
   "version": "1.0.0",
-  "description": "A Chrome extension for visual tab management with spaces, a smart switcher, and an AI assistant.",
+  "description": "A Chrome extension for visual tab management with spaces and a smart switcher.",
   "permissions": [
     "storage",
     "tabs",
@@ -51,12 +51,6 @@
         "default": "Ctrl+Shift+A"
       },
       "description": "Toggle Quick Actions Sidebar"
-    },
-    "open-ai-assistant": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+I"
-      },
-      "description": "Open AI Assistant"
     }
   },
   "content_scripts": [
@@ -76,10 +70,7 @@
         "smart-switcher.js",
         "actions.html",
         "actions.css",
-        "actions.js",
-        "ai-assistant.html",
-        "ai-assistant.css",
-        "ai-assistant.js"
+        "actions.js"
       ],
       "matches": ["<all_urls>"]
     }

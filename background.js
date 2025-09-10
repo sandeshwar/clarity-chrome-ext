@@ -1,8 +1,10 @@
-// --- Tab Spaces Management --- //
+// (AI features removed)
 
+// --- Message Listener ---
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     switch (message.type) {
+      // --- Tab Spaces Management Cases ---
       case 'clarity:get-spaces': {
         const groups = await chrome.tabGroups.query({});
         sendResponse(groups);
@@ -14,11 +16,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           const newGroupId = await chrome.tabs.group({ tabIds: [activeTab.id] });
           await chrome.tabGroups.update(newGroupId, { title: message.title || "New Space" });
           const groups = await chrome.tabGroups.query({});
-          sendResponse(groups); // Return updated list of groups
+          sendResponse(groups);
         }
         break;
       }
-       case 'clarity:get-tabs-for-space': {
+      case 'clarity:get-tabs-for-space': {
         const tabs = await chrome.tabs.query({ groupId: message.groupId });
         sendResponse(tabs);
         break;
@@ -34,48 +36,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(tabs);
         break;
       }
-      case 'clarity:ai-query': {
-        // Mock AI response for now
-        const query = message.query.toLowerCase();
-        let reply = "I'm not sure how to help with that yet. You can ask me to 'find tab', 'close tab', or 'how many tabs' you have open.";
 
-        if (query.includes('close tab')) {
-          reply = "I can do that. Which tab would you like to close? Please provide a title or URL.";
-        } else if (query.includes('find tab') || query.includes('search for')) {
-          reply = "I can search for tabs. What are you looking for?";
-        } else if (query.includes('how many tabs')) {
-            const tabs = await chrome.tabs.query({ windowId: chrome.windows.WINDOW_ID_CURRENT });
-            reply = `You currently have ${tabs.length} tabs open.`;
-        } else if (query.includes('summarize')) {
-            reply = "I can't summarize pages yet, but that's a great idea for a future update!";
-        }
-        
-        sendResponse({ reply: reply });
-        break;
-      }
+      // --- Quick Actions Case ---
       case 'clarity:perform-action': {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         switch (message.action) {
-          case 'new-tab':
-            chrome.tabs.create({});
-            break;
-          case 'bookmark':
-            if (tab) chrome.bookmarks.create({ title: tab.title, url: tab.url });
-            break;
-          case 'history':
-            chrome.tabs.create({ url: 'chrome://history' });
-            break;
-          case 'downloads':
-            chrome.tabs.create({ url: 'chrome://downloads' });
-            break;
-          case 'extensions':
-            chrome.tabs.create({ url: 'chrome://extensions' });
-            break;
-          case 'settings':
-            chrome.tabs.create({ url: 'chrome://settings' });
-            break;
+          case 'new-tab': chrome.tabs.create({}); break;
+          case 'bookmark': if (tab) chrome.bookmarks.create({ title: tab.title, url: tab.url }); break;
+          case 'history': chrome.tabs.create({ url: 'chrome://history' }); break;
+          case 'downloads': chrome.tabs.create({ url: 'chrome://downloads' }); break;
+          case 'extensions': chrome.tabs.create({ url: 'chrome://extensions' }); break;
+          case 'settings': chrome.tabs.create({ url: 'chrome://settings' }); break;
         }
-        sendResponse({status: 'ok'});
+        sendResponse({ status: 'ok' });
         break;
       }
     }
@@ -98,7 +71,6 @@ chrome.commands.onCommand.addListener(async (command) => {
     'toggle-grid': { type: 'clarity:toggle-grid' },
     'open-smart-switcher': { type: 'clarity:toggle-smart-switcher' },
     'toggle-actions-sidebar': { type: 'clarity:toggle-actions-sidebar' },
-    'open-ai-assistant': { type: 'clarity:toggle-ai-assistant' },
   }[command];
 
   if (message) {

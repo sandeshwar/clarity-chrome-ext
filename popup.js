@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'toggle-grid': 'clarity:toggle-grid',
     'open-smart-switcher': 'clarity:toggle-smart-switcher',
     'toggle-actions': 'clarity:toggle-actions-sidebar',
-    'open-ai-assistant': 'clarity:toggle-ai-assistant',
   };
 
   for (const [buttonId, messageType] of Object.entries(buttons)) {

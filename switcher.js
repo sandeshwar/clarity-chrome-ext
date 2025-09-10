@@ -30,25 +30,37 @@ document.addEventListener('DOMContentLoaded', () => {
         tabCard.className = 'tab-card';
         tabCard.dataset.tabId = tab.id;
 
-        const title = document.createElement('span');
-        title.className = 'title';
-        title.textContent = tab.title;
-
         const favicon = document.createElement('img');
         favicon.className = 'favicon';
         favicon.src = tab.favIconUrl || 'icons/icon16.png';
 
-        const titleContainer = document.createElement('div');
-        titleContainer.style.display = 'flex';
-        titleContainer.style.alignItems = 'center';
-        titleContainer.appendChild(favicon);
-        titleContainer.appendChild(title);
+        const title = document.createElement('span');
+        title.className = 'title';
+        title.textContent = tab.title;
+
+        const domain = document.createElement('span');
+        domain.className = 'domain';
+        try {
+            domain.textContent = new URL(tab.url).hostname;
+        } catch (e) {
+            domain.textContent = '';
+        }
+
+        const textContainer = document.createElement('div');
+        textContainer.className = 'text-container';
+        textContainer.appendChild(title);
+        textContainer.appendChild(domain);
+
+        const headerContainer = document.createElement('div');
+        headerContainer.className = 'tab-header';
+        headerContainer.appendChild(favicon);
+        headerContainer.appendChild(textContainer);
 
         const thumbnail = document.createElement('div');
         thumbnail.className = 'thumbnail';
         thumbnail.id = `thumbnail_${tab.id}`;
 
-        tabCard.appendChild(titleContainer);
+        tabCard.appendChild(headerContainer);
         tabCard.appendChild(thumbnail);
 
         tabCard.addEventListener('click', async () => {

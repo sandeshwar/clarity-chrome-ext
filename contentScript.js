@@ -1,7 +1,6 @@
 let gridIframe = null;
 let smartSwitcherIframe = null;
 let actionsIframe = null;
-let aiAssistantIframe = null;
 
 // --- Message Listeners ---
 
@@ -17,9 +16,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case 'clarity:toggle-actions-sidebar':
             toggleActionsSidebar();
             break;
-        case 'clarity:toggle-ai-assistant':
-            toggleAiAssistant();
-            break;
     }
     sendResponse({ status: 'ok' });
 });
@@ -34,8 +30,6 @@ window.addEventListener('message', (event) => {
         closeSmartSwitcher();
     } else if (actionsIframe && event.source === actionsIframe.contentWindow && event.data.type === 'clarity:close-actions-sidebar') {
         closeActionsSidebar();
-    } else if (aiAssistantIframe && event.source === aiAssistantIframe.contentWindow && event.data.type === 'clarity:close-ai-assistant') {
-        closeAiAssistant();
     }
 });
 
@@ -59,13 +53,6 @@ function closeActionsSidebar() {
     if (actionsIframe) {
         actionsIframe.remove();
         actionsIframe = null;
-    }
-}
-
-function closeAiAssistant() {
-    if (aiAssistantIframe) {
-        aiAssistantIframe.remove();
-        aiAssistantIframe = null;
     }
 }
 
@@ -106,7 +93,6 @@ function toggleActionsSidebar() {
     }
     closeGrid(); // Close other overlays if open
     closeSmartSwitcher();
-    closeAiAssistant();
     actionsIframe = createIframe('actions.html', {
         width: '280px',
         height: '100%',
@@ -114,25 +100,6 @@ function toggleActionsSidebar() {
         backgroundColor: 'transparent'
     });
     document.body.appendChild(actionsIframe);
-}
-
-function toggleAiAssistant() {
-    if (aiAssistantIframe) {
-        closeAiAssistant();
-        return;
-    }
-    // Close other overlays
-    closeGrid();
-    closeSmartSwitcher();
-    closeActionsSidebar();
-
-    aiAssistantIframe = createIframe('ai-assistant.html', {
-        width: '370px', // width + padding
-        height: '520px', // height + padding
-        position: 'bottom-right',
-        backgroundColor: 'transparent'
-    });
-    document.body.appendChild(aiAssistantIframe);
 }
 
 function createIframe(src, styles) {

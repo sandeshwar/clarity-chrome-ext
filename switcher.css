@@ -122,11 +122,33 @@ body {
 .tab-card .favicon {
   width: 16px;
   height: 16px;
+  flex-shrink: 0; /* Prevent favicon from shrinking */
   margin-right: 10px;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-left: 10px;
 }
 
 .tab-card .title {
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-card .domain {
+  font-size: 0.8em;
+  color: #aaa;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
