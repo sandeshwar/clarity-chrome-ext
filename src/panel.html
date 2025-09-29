@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clarity Tabs – Panel</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <div class="panel">
+      <header class="header">
+        <h1>Tab Manager</h1>
+      </header>
+
+      <div class="filters">
+        <div class="search-wrap">
+          <svg class="search-ico svg-icon"><use href="icons.svg#search" /></svg>
+          <input id="search" type="search" placeholder="Search tabs" />
+        </div>
+        <div class="filter-bar">
+          <div class="select-control">
+            <label for="grouping-mode">Group</label>
+            <select id="grouping-mode" aria-label="Grouping mode">
+              <option value="none">No grouping</option>
+              <option value="domain">By website</option>
+              <option value="domain-deep">By website &amp; section</option>
+              <option value="chrome-groups">By Chrome tab group</option>
+              <option value="activity">By recent activity</option>
+              <option value="status">By status</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <section class="actions">
+        <div class="actions-bar">
+          <button id="btn-undo" class="btn-icon tool" title="Undo">
+            <svg class="svg-icon"><use href="icons.svg#undo" /></svg>
+            <span id="undo-badge" class="badge" hidden></span>
+          </button>
+          <button id="close-dupes" class="btn-icon tool danger" title="Close duplicates">
+            <svg class="svg-icon"><use href="icons.svg#layers" /></svg>
+          </button>
+          <button id="create-groups" class="btn-icon tool" title="Create Chrome tab groups (current window)">
+            <svg class="svg-icon"><use href="icons.svg#grid-plus" /></svg>
+          </button>
+          <button id="toggle-groups" class="btn-icon tool" title="Toggle groups" aria-label="Toggle groups" hidden>
+            <svg class="svg-icon"><use href="icons.svg#chevron-right" /></svg>
+            <span class="sr-only">Toggle groups</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="tabs" class="tab-list"></div>
+    </div>
+    <script type="module" src="panel.js"></script>
+  </body>
+  </html>
