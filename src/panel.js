@@ -132,9 +132,6 @@ async function renderTabs() {
     return;
   }
   const groups = await groupTabsForMode(tabs, mode);
-  }
-
-  const groups = await groupTabsForMode(tabs, mode);
   lastRenderedMode = mode;
   lastRenderedGroupKeys = groups.map((group) => group.key);
 
