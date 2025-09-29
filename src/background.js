@@ -1,5 +1,7 @@
 import { getSettings } from './lib/storage.js';
 
+const openPanelTabs = new Set();
+
 chrome.runtime.onInstalled.addListener(async () => {
   // Ensure defaults exist
   await getSettings();
@@ -65,5 +67,38 @@ chrome.runtime.onStartup.addListener(async () => {
 chrome.action.onClicked.addListener(async (tab) => {
   try {
     await chrome.sidePanel.open({ tabId: tab.id });
+    openPanelTabs.add(tab.id);
   } catch {}
+});
+
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== 'toggle-side-panel') return;
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) return;
+    const tabId = tab.id;
+    if (openPanelTabs.has(tabId)) {
+      let closed = false;
+      if (chrome.sidePanel && typeof chrome.sidePanel.close === 'function') {
+        try {
+          await chrome.sidePanel.close({ tabId });
+          closed = true;
+        } catch {}
+      }
+      if (!closed) {
+        try {
+          await chrome.sidePanel.setOptions({ tabId, enabled: false });
+          await chrome.sidePanel.setOptions({ tabId, path: 'src/panel.html', enabled: true });
+        } catch {}
+      }
+      openPanelTabs.delete(tabId);
+    } else {
+      await chrome.sidePanel.open({ tabId });
+      openPanelTabs.add(tabId);
+    }
+  } catch {}
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  openPanelTabs.delete(tabId);
 });

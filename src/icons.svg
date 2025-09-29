@@ -16,6 +16,11 @@
       <polyline points="2 12 12 18 22 12"/>
       <polyline points="2 16 12 22 22 16"/>
     </symbol>
+    <symbol id="duplicates" viewBox="0 0 24 24">
+      <rect x="3" y="9" width="12" height="12" rx="2"/>
+      <rect x="9" y="3" width="12" height="12" rx="2"/>
+      <path d="M16 16l3 3"/>
+    </symbol>
     <symbol id="grid" viewBox="0 0 24 24">
       <rect x="3" y="3" width="8" height="8" rx="2"/>
       <rect x="13" y="3" width="8" height="8" rx="2"/>

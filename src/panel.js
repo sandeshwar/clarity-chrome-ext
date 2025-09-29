@@ -11,9 +11,11 @@ const tabsEl = $('#tabs');
 const btnUndo = $('#btn-undo');
 const undoBadge = $('#undo-badge');
 const btnCloseDupes = $('#close-dupes');
+const btnFindDupes = $('#find-dupes');
 const btnCreateGroups = $('#create-groups');
 const toggleGroupsBtn = $('#toggle-groups');
 const toggleGroupsLabel = toggleGroupsBtn?.querySelector('.sr-only') || null;
+const findDupesLabel = btnFindDupes?.querySelector('.sr-only') || null;
 
 const TAB_GROUP_COLOR_HEX = {
   blue: '#60a5fa',
@@ -45,6 +47,7 @@ const expandedGroupsByMode = new Map();
 const allowEmptyModes = new Set();
 let lastRenderedMode = 'none';
 let lastRenderedGroupKeys = [];
+let showDuplicatesOnly = false;
 
 function getExpandedSet(mode) {
   if (!expandedGroupsByMode.has(mode)) {
@@ -79,6 +82,13 @@ async function load() {
       : 'none';
     groupingMode.value = preferred;
   }
+  if (btnFindDupes) {
+    btnFindDupes.addEventListener('click', () => {
+      if (btnFindDupes.disabled) return;
+      showDuplicatesOnly = !showDuplicatesOnly;
+      renderTabs();
+    });
+  }
   await refreshTabs();
   await refreshUndoPeek();
 }
@@ -92,19 +102,36 @@ async function renderTabs() {
   closeGroupMenu();
   const q = search.value.trim();
   const mode = groupingMode?.value || 'none';
-  const tabs = filterAndSortTabs(allTabs, q);
-  tabsEl.innerHTML = '';
+  const duplicateKeys = computeDuplicateKeys(allTabs);
+  const hasDuplicates = duplicateKeys.size > 0;
+  if (!hasDuplicates && showDuplicatesOnly) showDuplicatesOnly = false;
+  if (btnFindDupes) {
+    btnFindDupes.disabled = !hasDuplicates;
+    btnFindDupes.classList.toggle('is-disabled', !hasDuplicates);
+    const isActive = showDuplicatesOnly && hasDuplicates;
+    btnFindDupes.classList.toggle('is-active', isActive);
+    btnFindDupes.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    btnFindDupes.title = isActive ? 'Show all tabs' : (hasDuplicates ? 'Highlight duplicate tabs' : 'No duplicate tabs found');
+    if (findDupesLabel) findDupesLabel.textContent = isActive ? 'Show all tabs' : 'Highlight duplicate tabs';
+  }
 
+  let tabs = filterAndSortTabs(allTabs, q);
+  if (showDuplicatesOnly && hasDuplicates) {
+    tabs = filterTabsByDuplicateKeys(tabs, duplicateKeys);
+  }
+
+  tabsEl.innerHTML = '';
   if (toggleGroupsBtn) {
     toggleGroupsBtn.hidden = true;
     toggleGroupsBtn.disabled = true;
   }
-
   if (mode === 'none') {
     lastRenderedMode = mode;
     lastRenderedGroupKeys = [];
     for (const t of tabs) tabsEl.appendChild(row(t));
     return;
+  }
+  const groups = await groupTabsForMode(tabs, mode);
   }
 
   const groups = await groupTabsForMode(tabs, mode);
@@ -419,6 +446,31 @@ function groupByStatus(tabs) {
       tabs: sortTabsByIndex(bucket.tabs),
       color: STATUS_ACCENTS[bucket.key]
     }));
+}
+
+function computeDuplicateKeys(tabs) {
+  const counts = new Map();
+  for (const tab of tabs) {
+    const key = duplicateKey(tab);
+    if (!key) continue;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const duplicates = new Map();
+  for (const [key, count] of counts) {
+    if (count > 1) duplicates.set(key, count);
+  }
+  return duplicates;
+}
+
+function filterTabsByDuplicateKeys(tabs, duplicateKeys) {
+  if (!duplicateKeys.size) return [];
+  return tabs.filter((tab) => duplicateKeys.has(duplicateKey(tab)));
+}
+
+function duplicateKey(tab) {
+  const url = tab.url || '';
+  if (!url) return '';
+  return url.split('#')[0].trim();
 }
 
 function buildGroupMenuActions(tabs) {
