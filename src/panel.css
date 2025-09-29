@@ -33,18 +33,16 @@ body {
   justify-content: center;
   align-items: stretch;
   padding: 0;
-}
+  box-sizing: border-box;
   overflow: hidden;
-
+}
 .panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 20px;
+  padding: 1rem;
   min-height: 100%;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
+  width: min(760px, 100%);
   max-height: 100%;
   background: var(--panel);
   border-radius: 0;
@@ -171,6 +169,7 @@ body {
   min-height: 0;
   scrollbar-gutter: stable;
   width: 100%;
+  padding: 1.2rem 0;
 }
 .group { position: relative; display:flex; flex-direction:column; gap:4px; margin-bottom: 6px; }
 .group-header {
