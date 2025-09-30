@@ -27,8 +27,8 @@
   "commands": {
     "toggle-side-panel": {
       "suggested_key": {
-        "default": "Ctrl+Shift+A",
-        "mac": "Command+Shift+A"
+        "default": "Ctrl+Alt+T",
+        "mac": "Command+Option+T"
       },
       "description": "Toggle Clarity Tabs side panel"
     }
