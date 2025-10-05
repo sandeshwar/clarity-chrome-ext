@@ -71,34 +71,6 @@ chrome.action.onClicked.addListener(async (tab) => {
   } catch {}
 });
 
-chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== 'toggle-side-panel') return;
-  try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) return;
-    const tabId = tab.id;
-    if (openPanelTabs.has(tabId)) {
-      let closed = false;
-      if (chrome.sidePanel && typeof chrome.sidePanel.close === 'function') {
-        try {
-          await chrome.sidePanel.close({ tabId });
-          closed = true;
-        } catch {}
-      }
-      if (!closed) {
-        try {
-          await chrome.sidePanel.setOptions({ tabId, enabled: false });
-          await chrome.sidePanel.setOptions({ tabId, path: 'src/panel.html', enabled: true });
-        } catch {}
-      }
-      openPanelTabs.delete(tabId);
-    } else {
-      await chrome.sidePanel.open({ tabId });
-      openPanelTabs.add(tabId);
-    }
-  } catch {}
-});
-
 chrome.tabs.onRemoved.addListener((tabId) => {
   openPanelTabs.delete(tabId);
 });

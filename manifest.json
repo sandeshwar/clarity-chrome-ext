@@ -23,14 +23,5 @@
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
-  },
-  "commands": {
-    "toggle-side-panel": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+T",
-        "mac": "Command+Shift+T"
-      },
-      "description": "Toggle Clarity Tabs side panel"
-    }
   }
 }

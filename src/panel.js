@@ -369,7 +369,6 @@ async function groupByChromeTabGroup(tabs) {
     return {
       key: `group:${entry.id}`,
       label,
-      subtitle: info?.collapsed ? 'Collapsed' : '',
       color,
       order: entry.order,
       tabs: sortTabsByIndex(entry.tabs)
