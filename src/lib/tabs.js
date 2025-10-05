@@ -2,7 +2,6 @@ export async function getAllTabs({ currentWindowOnly = false } = {}) {
   if (!currentWindowOnly) {
     return await chrome.tabs.query({});
   }
-
   try {
     const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] });
     if (win && typeof win.id === 'number') {
@@ -10,7 +9,6 @@ export async function getAllTabs({ currentWindowOnly = false } = {}) {
       if (tabs.length) return tabs;
     }
   } catch {}
-
   const normalTabs = await chrome.tabs.query({ windowType: 'normal' });
   if (!normalTabs.length) return normalTabs;
   const [first] = normalTabs;
@@ -51,7 +49,8 @@ export async function groupTabsByDomain(tabIds) {
   }
   for (const [domain, ids] of groups) {
     const groupId = await chrome.tabs.group({ tabIds: ids, createProperties: { windowId: first.windowId } });
-    try { await chrome.tabGroups.update(groupId, { title: domain, color: colorForDomain(domain) }); } catch {}
+    const title = stripTLD(domain);
+    try { await chrome.tabGroups.update(groupId, { title, color: colorForDomain(domain) }); } catch {}
   }
 }
 
@@ -102,4 +101,174 @@ function colorForDomain(domain) {
   }
   const idx = Math.abs(h) % GROUP_COLORS.length;
   return GROUP_COLORS[idx];
+}
+
+function stripTLD(domain) {
+  if (!domain) return domain;
+  if (domain === 'localhost') return domain;
+  if (isIP(domain)) return domain;
+  const parts = domain.split('.').filter(Boolean);
+  if (parts.length <= 1) return domain;
+  return parts[0];
+}
+
+function isSameDay(ts, nowTs) {
+  if (!ts) return false;
+  const a = new Date(ts);
+  const b = new Date(nowTs);
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+export async function groupTabsByDomainSection(tabIds) {
+  if (!tabIds.length) return;
+  const first = await chrome.tabs.get(tabIds[0]);
+  const groups = new Map();
+  
+  for (const id of tabIds) {
+    const t = await chrome.tabs.get(id);
+    const domain = domainOf(t.url) || "unknown";
+    let pathSeg = "";
+    try {
+      const url = new URL(t.url);
+      pathSeg = url.pathname.split('/').filter(Boolean)[0] || "";
+    } catch {}
+    
+    const key = `${domain}|${pathSeg}`;
+    if (!groups.has(key)) {
+      groups.set(key, { domain, pathSeg, ids: [] });
+    }
+    groups.get(key).ids.push(t.id);
+  }
+  
+  for (const [key, { domain, pathSeg, ids }] of groups) {
+    const groupId = await chrome.tabs.group({ tabIds: ids, createProperties: { windowId: first.windowId } });
+    const strippedDomain = stripTLD(domain);
+    const title = pathSeg ? `${strippedDomain}/${pathSeg}` : strippedDomain;
+    try { 
+      await chrome.tabGroups.update(groupId, { title, color: colorForDomain(domain) }); 
+    } catch {}
+  }
+}
+
+const STATUS_GROUP_COLOR = {
+  pinned: 'yellow',
+  muted: 'purple',
+  discarded: 'orange',
+  normal: 'blue'
+};
+
+const ACTIVITY_GROUP_COLOR = {
+  recent: 'green',
+  hour: 'blue',
+  today: 'cyan',
+  week: 'yellow',
+  older: 'orange'
+};
+
+export async function groupTabsByActivity(tabIds) {
+  if (!tabIds.length) return;
+  const first = await chrome.tabs.get(tabIds[0]);
+
+  const now = Date.now();
+  const buckets = [
+    { key: 'recent', label: 'Last 15 minutes', match: (diff) => diff <= 15 * 60 * 1000 },
+    { key: 'hour', label: 'Last hour', match: (diff) => diff <= 60 * 60 * 1000 },
+    { key: 'today', label: 'Earlier today', match: (diff, tab) => isSameDay(tab.lastAccessed, now) },
+    { key: 'week', label: 'This week', match: (diff) => diff <= 7 * 24 * 60 * 60 * 1000 },
+    { key: 'older', label: 'Older', match: () => true }
+  ].map((def) => ({ ...def, ids: [] }));
+
+  for (const id of tabIds) {
+    const t = await chrome.tabs.get(id);
+    const diff = t.lastAccessed ? now - t.lastAccessed : Number.POSITIVE_INFINITY;
+    for (const bucket of buckets) {
+      if (bucket.match(diff, t)) {
+        bucket.ids.push(t.id);
+        break;
+      }
+    }
+  }
+
+  for (const bucket of buckets) {
+    if (!bucket.ids.length) continue;
+    const groupId = await chrome.tabs.group({ tabIds: bucket.ids, createProperties: { windowId: first.windowId } });
+    const color = ACTIVITY_GROUP_COLOR[bucket.key] || 'blue';
+    try { await chrome.tabGroups.update(groupId, { title: bucket.label, color }); } catch {}
+  }
+}
+
+export async function groupTabsByStatus(tabIds) {
+  if (!tabIds.length) return;
+  const first = await chrome.tabs.get(tabIds[0]);
+
+  const statuses = [
+    { key: 'pinned', label: 'Pinned', test: (tab) => !!tab.pinned },
+    { key: 'muted', label: 'Muted', test: (tab) => !!(tab.mutedInfo?.muted) },
+    { key: 'discarded', label: 'Discarded', test: (tab) => !!tab.discarded },
+    { key: 'normal', label: 'Normal', test: () => true }
+  ].map((def) => ({ ...def, ids: [] }));
+
+  for (const id of tabIds) {
+    const t = await chrome.tabs.get(id);
+    for (const bucket of statuses) {
+      if (bucket.test(t)) {
+        bucket.ids.push(t.id);
+        break;
+      }
+    }
+  }
+
+  for (const bucket of statuses) {
+    if (!bucket.ids.length) continue;
+    const groupId = await chrome.tabs.group({ tabIds: bucket.ids, createProperties: { windowId: first.windowId } });
+    const color = STATUS_GROUP_COLOR[bucket.key] || 'blue';
+    try { await chrome.tabGroups.update(groupId, { title: bucket.label, color }); } catch {}
+  }
+}
+
+export async function reapplyChromeGroupTitlesAndColors(tabIds) {
+  if (!tabIds.length) return;
+  const groups = new Map();
+  for (const id of tabIds) {
+    const t = await chrome.tabs.get(id);
+    const gid = typeof t.groupId === 'number' ? t.groupId : -1;
+    if (gid === -1) continue;
+    if (!groups.has(gid)) groups.set(gid, []);
+    groups.get(gid).push(t);
+  }
+  const ids = Array.from(groups.keys());
+  if (!ids.length) return;
+  for (const gid of ids) {
+    let info = null;
+    try { info = await chrome.tabGroups.get(gid); } catch { info = null; }
+    const tabs = groups.get(gid) || [];
+    let dominantDomain = '';
+    const counts = new Map();
+    for (const t of tabs) {
+      const d = domainOf(t.url) || '';
+      if (!d) continue;
+      counts.set(d, (counts.get(d) || 0) + 1);
+    }
+    if (counts.size) {
+      dominantDomain = Array.from(counts.entries()).sort((a,b)=>b[1]-a[1])[0][0];
+    }
+    const computedTitle = dominantDomain ? stripTLD(dominantDomain) : `Group ${gid}`;
+    const title = (info && typeof info.title === 'string' && info.title.trim()) ? info.title.trim() : computedTitle;
+    const color = dominantDomain ? colorForDomain(dominantDomain) : 'blue';
+    try { await chrome.tabGroups.update(gid, { title, color }); } catch {}
+  }
+}
+
+export async function setCurrentWindowTabGroupsCollapsed(collapsed) {
+  let tabs = [];
+  try { tabs = await getAllTabs({ currentWindowOnly: true }); } catch { tabs = []; }
+  const NONE = chrome?.tabGroups && typeof chrome.tabGroups.TAB_GROUP_ID_NONE !== 'undefined' ? chrome.tabGroups.TAB_GROUP_ID_NONE : -1;
+  const ids = new Set();
+  for (const t of tabs) {
+    const gid = typeof t.groupId === 'number' ? t.groupId : NONE;
+    if (gid !== NONE) ids.add(gid);
+  }
+  for (const gid of ids) {
+    try { await chrome.tabGroups.update(gid, { collapsed }); } catch {}
+  }
 }

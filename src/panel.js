@@ -1,5 +1,5 @@
 import { getSettings, saveSettings } from './lib/storage.js';
-import { getAllTabs, switchTo, closeTab, pinTab, muteTab, discardTab, groupTabsByDomain, domainOf } from './lib/tabs.js';
+import { getAllTabs, switchTo, closeTab, pinTab, muteTab, discardTab, groupTabsByDomain, groupTabsByDomainSection, groupTabsByActivity, groupTabsByStatus, reapplyChromeGroupTitlesAndColors, setCurrentWindowTabGroupsCollapsed, domainOf } from './lib/tabs.js';
 import { filterAndSortTabs } from './lib/search.js';
 import { pushUndo, popUndo, peekUndo, snapshotTab } from './lib/undo.js';
 
@@ -13,9 +13,12 @@ const undoBadge = $('#undo-badge');
 const btnCloseDupes = $('#close-dupes');
 const btnFindDupes = $('#find-dupes');
 const btnCreateGroups = $('#create-groups');
+const btnResyncActivity = $('#resync-activity');
 const toggleGroupsBtn = $('#toggle-groups');
 const toggleGroupsLabel = toggleGroupsBtn?.querySelector('.sr-only') || null;
 const findDupesLabel = btnFindDupes?.querySelector('.sr-only') || null;
+const toggleLocalGroupsBtn = $('#toggle-local-groups');
+const toggleLocalGroupsLabel = toggleLocalGroupsBtn?.querySelector('.sr-only') || null;
 
 const TAB_GROUP_COLOR_HEX = {
   blue: '#60a5fa',
@@ -89,6 +92,16 @@ async function load() {
       renderTabs();
     });
   }
+  document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden) {
+      await refreshTabs();
+      await refreshUndoPeek();
+    }
+  });
+  window.addEventListener('focus', async () => {
+    await refreshTabs();
+    await refreshUndoPeek();
+  });
   await refreshTabs();
   await refreshUndoPeek();
 }
@@ -124,6 +137,10 @@ async function renderTabs() {
   if (toggleGroupsBtn) {
     toggleGroupsBtn.hidden = true;
     toggleGroupsBtn.disabled = true;
+  }
+  if (toggleLocalGroupsBtn) {
+    toggleLocalGroupsBtn.hidden = true;
+    toggleLocalGroupsBtn.disabled = true;
   }
   if (mode === 'none') {
     lastRenderedMode = mode;
@@ -248,6 +265,7 @@ async function renderTabs() {
   });
 
   updateToggleGroupsButton(mode, groups, expandedSet);
+  updateToggleLocalGroupsButton(mode, groups, expandedSet);
 }
 
 function updateToggleGroupsButton(mode, groups, expandedSet) {
@@ -257,22 +275,53 @@ function updateToggleGroupsButton(mode, groups, expandedSet) {
     toggleGroupsBtn.hidden = true;
     toggleGroupsBtn.disabled = true;
     toggleGroupsBtn.removeAttribute('data-state');
-    if (toggleGroupsLabel) toggleGroupsLabel.textContent = 'Toggle groups';
-    toggleGroupsBtn.setAttribute('aria-label', 'Toggle groups');
-    toggleGroupsBtn.setAttribute('title', 'Toggle groups');
+    if (toggleGroupsLabel) toggleGroupsLabel.textContent = 'Toggle Chrome groups';
+    toggleGroupsBtn.setAttribute('aria-label', 'Toggle Chrome groups');
+    toggleGroupsBtn.setAttribute('title', 'Toggle Chrome groups');
     return;
   }
 
   toggleGroupsBtn.hidden = false;
   toggleGroupsBtn.disabled = false;
-
-  const allExpanded = groups.every((group) => expandedSet.has(group.key));
-  const label = allExpanded ? 'Collapse all groups' : 'Expand all groups';
-
-  toggleGroupsBtn.dataset.state = allExpanded ? 'collapse' : 'expand';
+  // Initialize next action if not set
+  if (!toggleGroupsBtn.dataset.next) {
+    toggleGroupsBtn.dataset.next = 'collapse';
+  }
+  const label = toggleGroupsBtn.dataset.next === 'collapse'
+    ? 'Collapse all Chrome groups'
+    : 'Expand all Chrome groups';
   toggleGroupsBtn.setAttribute('aria-label', label);
   toggleGroupsBtn.setAttribute('title', label);
   if (toggleGroupsLabel) toggleGroupsLabel.textContent = label;
+  const iconUse = toggleGroupsBtn.querySelector('use');
+  if (iconUse) {
+    iconUse.setAttribute('href', toggleGroupsBtn.dataset.next === 'collapse' ? 'icons.svg#collapse-all' : 'icons.svg#expand-all');
+  }
+}
+
+function updateToggleLocalGroupsButton(mode, groups, expandedSet) {
+  if (!toggleLocalGroupsBtn) return;
+
+  if (mode === 'none' || !groups.length) {
+    toggleLocalGroupsBtn.hidden = true;
+    toggleLocalGroupsBtn.disabled = true;
+    toggleLocalGroupsBtn.removeAttribute('data-state');
+    if (toggleLocalGroupsLabel) toggleLocalGroupsLabel.textContent = 'Toggle local groups';
+    toggleLocalGroupsBtn.setAttribute('aria-label', 'Toggle local groups');
+    toggleLocalGroupsBtn.setAttribute('title', 'Toggle local groups');
+    return;
+  }
+
+  toggleLocalGroupsBtn.hidden = false;
+  toggleLocalGroupsBtn.disabled = false;
+
+  const allExpanded = groups.every((group) => expandedSet.has(group.key));
+  const label = allExpanded ? 'Collapse all local groups' : 'Expand all local groups';
+
+  toggleLocalGroupsBtn.dataset.state = allExpanded ? 'collapse' : 'expand';
+  toggleLocalGroupsBtn.setAttribute('aria-label', label);
+  toggleLocalGroupsBtn.setAttribute('title', label);
+  if (toggleLocalGroupsLabel) toggleLocalGroupsLabel.textContent = label;
 }
 
 async function groupTabsForMode(tabs, mode) {
@@ -615,7 +664,26 @@ if (groupingMode) {
 }
 
 if (toggleGroupsBtn) {
-  toggleGroupsBtn.addEventListener('click', () => {
+  toggleGroupsBtn.addEventListener('click', async () => {
+    // default to collapsing first if no state
+    const action = toggleGroupsBtn.dataset.next || 'collapse';
+    const shouldCollapse = action === 'collapse';
+    await setCurrentWindowTabGroupsCollapsed(shouldCollapse);
+    toggleGroupsBtn.dataset.next = shouldCollapse ? 'expand' : 'collapse';
+    // Update label to reflect next action
+    const label = toggleGroupsBtn.dataset.next === 'collapse' ? 'Collapse all Chrome groups' : 'Expand all Chrome groups';
+    if (toggleGroupsLabel) toggleGroupsLabel.textContent = label;
+    toggleGroupsBtn.setAttribute('aria-label', label);
+    toggleGroupsBtn.setAttribute('title', label);
+    const iconUse = toggleGroupsBtn.querySelector('use');
+    if (iconUse) {
+      iconUse.setAttribute('href', toggleGroupsBtn.dataset.next === 'collapse' ? 'icons.svg#collapse-all' : 'icons.svg#expand-all');
+    }
+  });
+}
+
+if (toggleLocalGroupsBtn) {
+  toggleLocalGroupsBtn.addEventListener('click', () => {
     const mode = lastRenderedMode;
     if (mode === 'none' || !lastRenderedGroupKeys.length) return;
     const set = getExpandedSet(mode);
@@ -649,13 +717,64 @@ btnCloseDupes.addEventListener('click', async () => {
 btnCreateGroups.addEventListener('click', async () => {
   const winTabs = await getAllTabs({ currentWindowOnly: true });
   if (!winTabs.length) return;
-  const ok = confirm('Create Chrome tab groups by domain for the current window? You can Undo to ungroup.');
+  const mode = groupingMode?.value || 'domain';
+
+  if (mode === 'none') {
+    alert('This mode does not create Chrome tab groups. Select Website, Website & Section, Activity or Status.');
+    return;
+  }
+
+  if (mode === 'chrome-groups') {
+    const ok = confirm('Re-apply titles & colors to existing Chrome tab groups for the current window?');
+    if (!ok) return;
+    const ids = winTabs.map(t => t.id);
+    await reapplyChromeGroupTitlesAndColors(ids);
+    showUndo('Updated tab group titles & colors');
+    await refreshTabs();
+    await refreshUndoPeek();
+    return;
+  }
+
+  let confirmMsg = 'Create Chrome tab groups for the current window? You can Undo to ungroup.';
+  if (mode === 'domain') confirmMsg = 'Create Chrome tab groups by website for the current window? You can Undo to ungroup.';
+  else if (mode === 'domain-deep') confirmMsg = 'Create Chrome tab groups by website & section for the current window? You can Undo to ungroup.';
+  else if (mode === 'activity') confirmMsg = 'Create Chrome tab groups by recent activity for the current window? You can Undo to ungroup.';
+  else if (mode === 'status') confirmMsg = 'Create Chrome tab groups by status for the current window? You can Undo to ungroup.';
+
+  const ok = confirm(confirmMsg);
   if (!ok) return;
   const ids = winTabs.map(t => t.id);
   await pushUndo({ type: 'ungroup-tabs', tabIds: ids });
-  await groupTabsByDomain(ids);
+
+  if (mode === 'domain') {
+    await groupTabsByDomain(ids);
+  } else if (mode === 'domain-deep') {
+    await groupTabsByDomainSection(ids);
+  } else if (mode === 'activity') {
+    await groupTabsByActivity(ids);
+  } else if (mode === 'status') {
+    await groupTabsByStatus(ids);
+  }
+
   showUndo('Created tab groups');
+  await refreshTabs();
+  await refreshUndoPeek();
 });
+
+if (btnResyncActivity) {
+  btnResyncActivity.addEventListener('click', async () => {
+    const winTabs = await getAllTabs({ currentWindowOnly: true });
+    if (!winTabs.length) return;
+    const ok = confirm('Re-sync Chrome tab groups by recent activity for the current window? You can Undo to ungroup.');
+    if (!ok) return;
+    const ids = winTabs.map(t => t.id);
+    await pushUndo({ type: 'ungroup-tabs', tabIds: ids });
+    await groupTabsByActivity(ids);
+    showUndo('Re-synced tab groups by recent activity');
+    await refreshTabs();
+    await refreshUndoPeek();
+  });
+}
 
 function showUndo() {}
 
