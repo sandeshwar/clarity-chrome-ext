@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarity - Tab Manager</title>
+    <link rel="stylesheet" href="sidepanel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3h18v18H3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 9h18M9 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="logo-text">Clarity</span>
+                </div>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="settings-btn" id="settingsBtn" aria-label="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Search tabs..."
+                        autocomplete="off"
+                    >
+                    <button class="clear-search" id="clearSearch" aria-label="Clear search">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="search-filters">
+                    <button class="filter-btn active" data-filter="all" aria-label="All tabs">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                            <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        All
+                    </button>
+                    <button class="filter-btn" data-filter="current" aria-label="Current window">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                        </svg>
+                        Current
+                    </button>
+                    <button class="filter-btn" data-filter="active" aria-label="Active only">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Active
+                    </button>
+                    <button class="filter-btn" data-filter="duplicates" aria-label="Duplicates">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="7" y="7" width="10" height="10" stroke="currentColor" stroke-width="2"/>
+                            <rect x="3" y="3" width="10" height="10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Duplicates
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalTabs">0</div>
+                        <div class="stat-label">Total Tabs</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                            <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="activeTabs">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                            <path d="M8 12h8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="windowsCount">0</div>
+                        <div class="stat-label">Windows</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                            <rect x="7" y="7" width="10" height="10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="duplicateCount">0</div>
+                        <div class="stat-label">Duplicates</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="actions-section">
+            <div class="actions-grid">
+                <button class="action-btn" id="groupByDomain" aria-label="Group by domain">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 1v6M12 17v6M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Group by Domain
+                </button>
+                <button class="action-btn" id="closeDuplicates" aria-label="Close duplicates">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="7" y="7" width="10" height="10" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="3" width="10" height="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Close Duplicates
+                </button>
+                <button class="action-btn" id="suspendTabs" aria-label="Suspend tabs">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                        <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                    </svg>
+                    Suspend All
+                </button>
+                <button class="action-btn" id="refreshAll" aria-label="Refresh all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Refresh All
+                </button>
+                <button class="action-btn" id="mergeWindowsAsGroups" aria-label="Merge windows as groups">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <path d="M10 7h4M10 17h4M7 10v4M17 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Merge as Groups
+                </button>
+            </div>
+        </section>
+
+        <!-- Tabs List -->
+        <main class="tabs-section">
+            <div class="section-header">
+                <h2 class="section-title">Tabs</h2>
+                <div class="section-actions">
+                    <button class="sort-btn" id="sortTabs" aria-label="Sort tabs">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Sort
+                    </button>
+                </div>
+            </div>
+            <div class="tabs-container" id="tabsContainer">
+                <!-- Tabs will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Loading your tabs...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                <path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <h3>No tabs found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+    </div>
+
+    <!-- Tab Item Template -->
+    <template id="tabItemTemplate">
+        <div class="tab-item" data-tab-id="">
+            <div class="tab-favicon">
+                <img src="" alt="" loading="lazy">
+            </div>
+            <div class="tab-content">
+                <div class="tab-title"></div>
+                <div class="tab-url"></div>
+            </div>
+            <div class="tab-actions">
+                <button class="tab-action-btn pin-btn" aria-label="Pin tab">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="tab-action-btn duplicate-btn" aria-label="Duplicate tab">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="9" y="9" width="13" height="13" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="3" width="13" height="13" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="tab-action-btn close-btn" aria-label="Close tab">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Group By Domain Modal -->
+    <div class="modal-overlay" id="groupByDomainModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Group Tabs by Domain</h3>
+                <button class="modal-close" id="closeGroupModal" aria-label="Close modal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <p class="modal-description">Choose how you'd like to group your tabs by domain:</p>
+                <div class="group-options">
+                    <div class="group-option">
+                        <input type="radio" id="separateWindows" name="groupOption" value="separate" checked>
+                        <label for="separateWindows" class="option-label">
+                            <div class="option-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="option-content">
+                                <div class="option-title">Separate Windows</div>
+                                <div class="option-description">Create a new window for each domain</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="group-option">
+                        <input type="radio" id="sameWindowGroups" name="groupOption" value="groups">
+                        <label for="sameWindowGroups" class="option-label">
+                            <div class="option-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" rx="2"/>
+                                    <line x1="3" y1="8" x2="21" y2="8" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="3" y1="13" x2="21" y2="13" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <div class="option-content">
+                                <div class="option-title">Tab Groups in Same Window</div>
+                                <div class="option-description">Organize tabs into groups within one window</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelGroup">Cancel</button>
+                <button class="btn btn-primary" id="confirmGroup">Group Tabs</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Auto-Cleanup Settings -->
+                <div class="settings-section">
+                    <h4>Auto-Cleanup</h4>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableAutoCleanup">
+                            <span class="toggle-slider"></span>
+                            <span class="setting-label">Enable auto-cleanup</span>
+                        </label>
+                        <p class="setting-description">Automatically close old inactive tabs</p>
+                    </div>
+                    <div class="setting-item">
+                        <label for="cleanupInterval">Cleanup frequency</label>
+                        <select id="cleanupInterval">
+                            <option value="60">Every hour</option>
+                            <option value="360">Every 6 hours</option>
+                            <option value="1440">Every day</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="maxTabAge">Close tabs inactive for</label>
+                        <select id="maxTabAge">
+                            <option value="3600000">1 hour</option>
+                            <option value="21600000">6 hours</option>
+                            <option value="86400000">1 day</option>
+                            <option value="604800000">1 week</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tab Limits -->
+                <div class="settings-section">
+                    <h4>Tab Limits</h4>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableTabLimit">
+                            <span class="toggle-slider"></span>
+                            <span class="setting-label">Enable tab limit warnings</span>
+                        </label>
+                        <p class="setting-description">Show warning when too many tabs are open</p>
+                    </div>
+                    <div class="setting-item">
+                        <label for="maxTabsPerWindow">Maximum tabs per window</label>
+                        <input type="number" id="maxTabsPerWindow" min="10" max="100" value="50">
+                    </div>
+                </div>
+
+                <!-- UI Preferences -->
+                <div class="settings-section">
+                    <h4>UI Preferences</h4>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableStatistics">
+                            <span class="toggle-slider"></span>
+                            <span class="setting-label">Show statistics</span>
+                        </label>
+                        <p class="setting-description">Display tab and window statistics</p>
+                    </div>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableContextMenu">
+                            <span class="toggle-slider"></span>
+                            <span class="setting-label">Enable context menu</span>
+                        </label>
+                        <p class="setting-description">Show Clarity options in right-click menu</p>
+                    </div>
+                    <div class="setting-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableNotifications">
+                            <span class="toggle-slider"></span>
+                            <span class="setting-label">Enable notifications</span>
+                        </label>
+                        <p class="setting-description">Show notifications for tab operations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,27 +1,68 @@
 {
   "manifest_version": 3,
-  "name": "Clarity Tabs",
-  "version": "0.1.0",
-  "description": "A calmer, searchable tab manager with sessions, bulk actions, and auto-discard.",
+  "name": "Clarity - Advanced Tab Manager",
+  "version": "2.0.7",
+  "description": "A beautiful and elegant tab management extension for Chrome with advanced features and stunning UI",
   "permissions": [
     "tabs",
-    "tabGroups",
-    "sessions",
     "storage",
+    "windows",
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "tabGroups",
     "alarms",
+    "notifications",
     "sidePanel"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "*://*/*"
   ],
-  "side_panel": {
-    "default_path": "src/panel.html"
+  "background": {
+    "service_worker": "src/service-worker.js"
   },
   "action": {
-    "default_title": "Clarity Tabs"
+    "default_title": "Clarity Tab Manager",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
   },
-  "background": {
-    "service_worker": "src/background.js",
-    "type": "module"
-  }
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+  "commands": {
+    "open_side_panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Open Clarity Side Panel"
+    },
+    "quick_search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F"
+      },
+      "description": "Quick Tab Search"
+    },
+    "focus_search": {
+      "suggested_key": {
+        "default": "Ctrl+K"
+      },
+      "description": "Focus Search Bar"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/icons/*"],
+      "matches": ["*://*/*"]
+    }
+  ]
 }
