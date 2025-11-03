@@ -53,7 +53,6 @@
 
 ### 🌙 **Theme System**
 - Light and dark mode support
-- System preference detection
 - Smooth theme transitions
 - High contrast mode support
 - Customizable color schemes
@@ -95,7 +94,6 @@
 
 1. **Open the Side Panel**: 
    - Click the Clarity icon in your toolbar
-   - Or use `Ctrl+Shift+Y` keyboard shortcut
 
 2. **Explore Your Tabs**:
    - View all your tabs in an organized grid
@@ -129,20 +127,12 @@ Right-click on any page to access:
 - Move tab to new window
 - Merge all windows
 
-#### Keyboard Shortcuts
-- `Ctrl+Shift+Y` - Open Clarity side panel
-- `Ctrl+Shift+F` - Quick search
-- `Ctrl+K` - Focus search bar
-- `Escape` - Clear search
-- `↑/↓` - Navigate tabs
-- `Enter` - Switch to selected tab
 
 ### Settings & Customization
 
 #### Theme Settings
 - **Light Mode**: Clean, bright interface
 - **Dark Mode**: Easy on the eyes for night use
-- **System**: Automatically follow your system preference
 
 #### Tab Limits
 - Set maximum tabs per window
@@ -224,16 +214,6 @@ clarity-chrome-ext/
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📋 Permissions Required
-
-- **tabs**: Access and manage browser tabs
-- **storage**: Save settings and statistics
-- **windows**: Manage browser windows
-- **activeTab**: Access current tab information
-- **contextMenus**: Add right-click menu options
-- **scripting**: Execute content scripts if needed
-- **host_permissions**: Access tab content for functionality
-
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -264,22 +244,6 @@ clarity-chrome-ext/
 3. Click "Inspect views: sidepanel"
 4. Check console for error messages
 
-## 📈 Roadmap
-
-### Version 2.1 (Planned)
-- [ ] Tab groups support
-- [ ] Custom color themes
-- [ ] Export/import settings
-- [ ] Tab usage analytics
-- [ ] Performance improvements
-
-### Version 2.2 (Future)
-- [ ] Tab synchronization
-- [ ] Cloud backup
-- [ ] Advanced filtering options
-- [ ] Tab hibernation
-- [ ] API for third-party integrations
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -290,24 +254,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Material Design Guidelines
 - Open source community contributions
 - Beta testers and feedback providers
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/clarity-chrome-ext/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/clarity-chrome-ext/discussions)
-- **Email**: support@clarity-tabs.com
-- **Website**: [clarity-tabs.com](https://clarity-tabs.com)
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/clarity-chrome-ext&type=Date)](https://star-history.com/#yourusername/clarity-chrome-ext&Date)
-
----
-
-<div align="center">
-
-**Made with ❤️ for productive browsing**
-
-[⬆ Back to top](#clarity---advanced-tab-manager-for-chrome)
-
-</div>
