@@ -38,9 +38,11 @@ class ClarityTabManager {
       this.setupKeyboardShortcuts();
       this.updateStats();
       this.renderTabs();
+      this.hideLoadingState();
     } catch (error) {
       console.error('Failed to initialize Clarity Tab Manager:', error);
       this.showError('Failed to load tabs. Please refresh the page.');
+      this.hideLoadingState();
     }
   }
 
