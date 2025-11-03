@@ -1,0 +1,27 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified design for 16x16 -->
+  <rect width="16" height="16" rx="3" fill="url(#bgGradient)"/>
+  
+  <!-- Single window representation -->
+  <g transform="translate(2, 3)">
+    <rect x="0" y="0" width="12" height="10" rx="1.5" fill="white" opacity="0.95"/>
+    <rect x="0" y="0" width="12" height="2.5" rx="1.5" fill="rgba(255,255,255,0.3)"/>
+    
+    <!-- Simplified controls -->
+    <circle cx="2" cy="1.2" r="0.6" fill="#FF5F57"/>
+    <circle cx="4" cy="1.2" r="0.6" fill="#FFBD2E"/>
+    <circle cx="6" cy="1.2" r="0.6" fill="#28CA42"/>
+    
+    <!-- Content lines -->
+    <line x1="2" y1="5" x2="10" y2="5" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+    <line x1="2" y1="7" x2="10" y2="7" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+    <line x1="2" y1="9" x2="8" y2="9" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+  </g>
+  
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5"/>
+      <stop offset="100%" style="stop-color:#2563EB"/>
+    </linearGradient>
+  </defs>
+</svg>

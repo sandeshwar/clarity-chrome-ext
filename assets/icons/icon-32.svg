@@ -1,0 +1,45 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Optimized for 32x32 -->
+  <rect width="32" height="32" rx="7" fill="url(#bgGradient)"/>
+  <rect width="32" height="32" rx="7" fill="url(#glowGradient)" opacity="0.25"/>
+  
+  <g transform="translate(5, 6)">
+    <!-- Back window -->
+    <rect x="2" y="2" width="18" height="14" rx="2" fill="rgba(0,0,0,0.15)"/>
+    
+    <!-- Front window -->
+    <rect x="0" y="0" width="18" height="14" rx="2" fill="url(#windowGradient)"/>
+    <rect x="0" y="0" width="18" height="3" rx="2" fill="rgba(255,255,255,0.25)"/>
+    
+    <!-- Window controls -->
+    <circle cx="2" cy="1.5" r="0.8" fill="#FF5F57"/>
+    <circle cx="4.5" cy="1.5" r="0.8" fill="#FFBD2E"/>
+    <circle cx="7" cy="1.5" r="0.8" fill="#28CA42"/>
+    
+    <!-- Content -->
+    <g stroke="rgba(255,255,255,0.45)" stroke-width="1.2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="15" y2="6"/>
+      <line x1="3" y1="8.5" x2="15" y2="8.5"/>
+      <line x1="3" y1="11" x2="12" y2="11"/>
+    </g>
+    
+    <!-- Sparkle -->
+    <path d="M15 5 L15.5 7 L17.5 7.5 L15.5 8 L15 10 L14.5 8 L12.5 7.5 L14.5 7 Z" fill="white" opacity="0.9"/>
+  </g>
+  
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5"/>
+      <stop offset="50%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#2563EB"/>
+    </linearGradient>
+    <radialGradient id="glowGradient" cx="50%" cy="30%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </radialGradient>
+    <linearGradient id="windowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+</svg>
