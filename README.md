@@ -76,7 +76,7 @@
 ### Manual Installation (Development)
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/clarity-chrome-ext.git
+   git clone https://github.com/sandeshwar/clarity-chrome-ext.git
    cd clarity-chrome-ext
    ```
 
